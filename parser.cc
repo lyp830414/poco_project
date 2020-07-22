@@ -44,6 +44,11 @@ void MyApplication::defineOptions( Util::OptionSet& options)
                 .required(false)
                 .repeatable(false)
                 .callback(Util::OptionCallback<MyApplication>(this, &MyApplication::handleDaemon))  );
+    options.addOption(
+            Util::Option("dummy", "", "Run application as a daemon.")
+                    .required(false)
+                    .repeatable(false)
+                    .callback(Util::OptionCallback<MyApplication>(this, &MyApplication::DummyMsg))  );
 }
 
 void MyApplication::handleHelp(const std::string& name, const std::string& value )
@@ -57,6 +62,10 @@ void MyApplication::handleHelp(const std::string& name, const std::string& value
 void MyApplication::handleDaemon(const std::string& name, const std::string& value)
 {
     beDaemon();
+}
+
+void MyApplication::DummyMsg(const std::string& name, const std::string& value) {
+    cout<<"hello Big Niu Niu!"<<endl;
 }
 
 void MyApplication::beDaemon()
@@ -86,8 +95,7 @@ int MyApplication::main(const std::vector<std::string>& args)
         while(1)
         {
             std::cout << "hello world" << std::endl;
-            MyServerApp app;
-	    app.run(::argc, ::argv);
+            rest_main({""});
 	    
             sleep( 3 );
         }

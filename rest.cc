@@ -10,7 +10,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "rest.h" 
+#include "rest.h"
+#include "parser.h"
 
 using namespace std;
 using namespace Poco::Net;
@@ -30,7 +31,42 @@ HTTPRequestHandler* MyRequestHandlerFactory::createRequestHandler(const HTTPServ
 {
 	return new MyRequestHandler;
 }
- 
+
+void MyApplication::_waitForTerminationRequest()
+{
+#if POCO_OS != POCO_OS_ANDROID
+    sigset_t sset;
+	sigemptyset(&sset);
+	if (!std::getenv("POCO_ENABLE_DEBUGGER"))
+	{
+		sigaddset(&sset, SIGINT);
+	}
+	sigaddset(&sset, SIGQUIT);
+	sigaddset(&sset, SIGTERM);
+	sigprocmask(SIG_BLOCK, &sset, NULL);
+	int sig;
+	sigwait(&sset, &sig);
+#else // POCO_OS != POCO_OS_ANDROID
+    _terminate.wait();
+#endif
+}
+
+int MyApplication::rest_main(const vector<string> &)
+{
+    HTTPServer s(new MyRequestHandlerFactory, ServerSocket(8080), new HTTPServerParams);
+
+    s.start();
+    cout << endl << "Server started" << endl;
+
+    _waitForTerminationRequest();  // wait for CTRL-C or kill
+
+    cout << endl << "Shutting down..." << endl;
+
+    s.stop();
+
+    return Application::EXIT_OK;
+}
+/*
 int MyServerApp::main(const vector<string> &)
 {
 	HTTPServer s(new MyRequestHandlerFactory, ServerSocket(8080), new HTTPServerParams);
@@ -45,7 +81,7 @@ int MyServerApp::main(const vector<string> &)
 	s.stop();
 
 	return Application::EXIT_OK;
-}
+}*/
  
 /*int main(int argc, char **argv)
 {

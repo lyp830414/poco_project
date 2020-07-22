@@ -28,11 +28,11 @@ public:
 	virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest &);
 };
  
-class MyServerApp :public ServerApplication
+/*class MyServerApp :public ServerApplication
 {
 protected:
 	int main(const vector<string> &);
-};
+};*/
  
 /*int main(int argc, char **argv)
 {
